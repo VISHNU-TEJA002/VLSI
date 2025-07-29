@@ -1,0 +1,45 @@
+// Module: EvenOddFSM
+// Description: A Finite State Machine that checks if an input number is even or odd.
+// It maintains its state based on the LSB of the input number.
+
+module EvenOddFSM (
+    input  wire       clk,
+    input  wire       reset,
+    input  wire [7:0] data_in,
+    output reg        is_odd
+);
+
+    // State definitions
+    parameter S_EVEN = 1'b0;
+    parameter S_ODD  = 1'b1;
+
+    reg state;
+
+    // State transition logic
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            state <= S_EVEN; // Default to EVEN state on reset
+        end else begin
+            // The next state is determined by the LSB of the input
+            if (data_in[0] == 1'b1) begin
+                state <= S_ODD;
+            end else begin
+                state <= S_EVEN;
+            end
+        end
+    end
+
+    // Output logic (Moore FSM style)
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            is_odd <= 1'b0;
+        end else begin
+            if (state == S_ODD) begin
+                is_odd <= 1'b1;
+            end else begin
+                is_odd <= 1'b0;
+            end
+        end
+    end
+
+endmodule
