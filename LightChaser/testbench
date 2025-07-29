@@ -1,0 +1,53 @@
+`timescale 1ns / 1ps
+
+module LightChaser_tb;
+
+    // Parameters
+    localparam SHIFT_DELAY_CYCLES = 10;
+
+    // Inputs
+    reg clk;
+    reg reset;
+    reg enable;
+
+    // Outputs
+    wire [7:0] leds;
+
+    // Instantiate the Unit Under Test (UUT)
+    LightChaser #(
+        .SHIFT_DELAY_CYCLES(SHIFT_DELAY_CYCLES)
+    ) uut (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .leds(leds)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("light_chaser.vcd");
+        $dumpvars(0, uut);
+
+        reset = 1;
+        enable = 0;
+        #10;
+        reset = 0;
+        #10;
+
+        enable = 1;
+        # (SHIFT_DELAY_CYCLES * 10 * 12);
+
+        enable = 0;
+        # (SHIFT_DELAY_CYCLES * 10 * 5);
+
+        $finish;
+    end
+
+endmodule
