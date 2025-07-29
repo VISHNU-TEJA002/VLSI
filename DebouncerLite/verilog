@@ -1,0 +1,46 @@
+// Module: Debouncer
+// Description: Filters a noisy input (like a mechanical button) to produce a
+// clean, stable output signal.
+
+module Debouncer #(
+    parameter CLK_FREQ_HZ = 50_000_000, // 50 MHz clock
+    parameter DEBOUNCE_TIME_MS = 20      // 20 ms debounce time
+) (
+    input  wire clk,
+    input  wire reset,
+    input  wire noisy_in,
+    output reg  clean_out
+);
+
+    // Calculate the number of clock cycles for the debounce delay
+    localparam COUNTER_MAX = (CLK_FREQ_HZ / 1000) * DEBOUNCE_TIME_MS;
+
+    reg [1:0] sync; // 2-flop synchronizer for the input
+    reg [$clog2(COUNTER_MAX)-1:0] counter;
+    
+    // Synchronize the asynchronous input to the clock domain
+    always @(posedge clk) begin
+        sync <= {sync[0], noisy_in};
+    end
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            clean_out <= 1'b0;
+            counter   <= 0;
+        end else begin
+            if (sync[1] != clean_out) begin
+                // Input differs from stable output, start/continue counting
+                if (counter < COUNTER_MAX) begin
+                    counter <= counter + 1;
+                end else begin
+                    // Counter maxed out, the signal is stable. Update the output.
+                    clean_out <= sync[1];
+                end
+            end else begin
+                // Input matches stable output, reset the counter
+                counter <= 0;
+            end
+        end
+    end
+
+endmodule
