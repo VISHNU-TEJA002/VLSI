@@ -1,0 +1,31 @@
+// Module: GrayCoder
+// Description: Converts a 4-bit binary input to its 4-bit Gray code equivalent.
+// The output is updated only when the input value changes.
+
+module GrayCoder (
+    input  wire       clk,
+    input  wire       reset,
+    input  wire [3:0] bin_in,
+    output reg  [3:0] gray_out
+);
+
+    reg [3:0] bin_in_reg;
+
+    // Gray code conversion logic: G = B ^ (B >> 1)
+    wire [3:0] gray_code_val = bin_in ^ (bin_in >> 1);
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            bin_in_reg <= 4'b0;
+            gray_out   <= 4'b0;
+        end else begin
+            // Only update the output if the input has changed
+            if (bin_in != bin_in_reg) begin
+                gray_out <= gray_code_val;
+            end
+            // Always update the registered input
+            bin_in_reg <= bin_in;
+        end
+    end
+
+endmodule
