@@ -1,0 +1,31 @@
+`timescale 1ns / 1ps
+
+module BibCounter_tb;
+
+    // Inputs
+    reg [7:0] data_in;
+
+    // Outputs
+    wire [3:0] count_out;
+
+    // Instantiate the Unit Under Test (UUT)
+    BibCounter uut (
+        .data_in(data_in),
+        .count_out(count_out)
+    );
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("bib_counter.vcd");
+        $dumpvars(0, uut);
+
+        data_in = 8'b00000000; #10;
+        data_in = 8'b11111111; #10;
+        data_in = 8'b10101010; #10;
+        data_in = 8'b00001111; #10;
+        
+        $finish;
+    end
+
+endmodule
