@@ -1,0 +1,54 @@
+`timescale 1ns / 1ps
+
+module RotatorUnit_tb;
+
+    // Inputs
+    reg clk;
+    reg reset;
+    reg load;
+    reg direction;
+    reg [7:0] data_in;
+
+    // Outputs
+    wire [7:0] data_out;
+
+    // Instantiate the Unit Under Test (UUT)
+    RotatorUnit uut (
+        .clk(clk),
+        .reset(reset),
+        .load(load),
+        .direction(direction),
+        .data_in(data_in),
+        .data_out(data_out)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("rotator_unit.vcd");
+        $dumpvars(0, uut);
+
+        reset = 1;
+        load = 0;
+        direction = 0;
+        data_in = 0;
+        #10;
+        reset = 0;
+        #10;
+        
+        // Load, then rotate left, then rotate right
+        load = 1; data_in = 8'b1100_1001; #10;
+        load = 0; #10;
+        direction = 0; #50;
+        direction = 1; #80;
+        
+        $finish;
+    end
+
+endmodule
