@@ -1,0 +1,14 @@
+// Module: NibbleSwapper
+// Description: Swaps the upper and lower nibbles (4 bits) of an 8-bit input
+// when the 'enable' signal is high.
+
+module NibbleSwapper (
+    input  wire       enable,
+    input  wire [7:0] data_in,
+    output wire [7:0] data_out
+);
+
+    // If enable is high, swap nibbles. Otherwise, pass the input through.
+    assign data_out = enable ? {data_in[3:0], data_in[7:4]} : data_in;
+
+endmodule
