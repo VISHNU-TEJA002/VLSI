@@ -1,0 +1,53 @@
+`timescale 1ns / 1ps
+
+module SeqCheck_tb;
+
+    // Inputs
+    reg clk;
+    reg reset;
+    reg signal_in;
+
+    // Outputs
+    wire flag_out;
+
+    // Instantiate the Unit Under Test (UUT)
+    SeqCheck uut (
+        .clk(clk),
+        .reset(reset),
+        .signal_in(signal_in),
+        .flag_out(flag_out)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("seq_check.vcd");
+        $dumpvars(0, uut);
+
+        reset = 1;
+        signal_in = 0;
+        #10;
+        reset = 0;
+        #10;
+        
+        // 3 edges within 5 cycles
+        signal_in = 1; #10; signal_in = 0; #10;
+        signal_in = 1; #10; signal_in = 0; #10;
+        signal_in = 1; #10; signal_in = 0; #10;
+        #20;
+
+        // 3 edges outside 5 cycles
+        signal_in = 1; #10; signal_in = 0; #10;
+        signal_in = 1; #10; signal_in = 0; #30; // Gap
+        signal_in = 1; #10; signal_in = 0; #10;
+        
+        $finish;
+    end
+
+endmodule
