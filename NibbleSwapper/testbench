@@ -1,0 +1,36 @@
+`timescale 1ns / 1ps
+
+module NibbleSwapper_tb;
+
+    // Inputs
+    reg enable;
+    reg [7:0] data_in;
+
+    // Outputs
+    wire [7:0] data_out;
+
+    // Instantiate the Unit Under Test (UUT)
+    NibbleSwapper uut (
+        .enable(enable),
+        .data_in(data_in),
+        .data_out(data_out)
+    );
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("nibble_swapper.vcd");
+        $dumpvars(0, uut);
+
+        enable = 0;
+        data_in = 8'hAB; #10;
+
+        enable = 1;
+        data_in = 8'hAB; #10;
+        
+        enable = 0; #10;
+        
+        $finish;
+    end
+
+endmodule
