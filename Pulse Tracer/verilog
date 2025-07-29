@@ -1,0 +1,33 @@
+// Module: PulseDetector
+// Description: Detects a single clock cycle wide pulse.
+// It ignores glitches or pulses longer than one cycle.
+
+module PulseDetector (
+    input  wire clk,
+    input  wire reset,
+    input  wire data_in,
+    output reg  pulse_out
+);
+
+    reg data_d1, data_d2; // Two flip-flops to store history
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            data_d1   <= 1'b0;
+            data_d2   <= 1'b0;
+            pulse_out <= 1'b0;
+        end else begin
+            // Shift the input signal through registers
+            data_d1 <= data_in;
+            data_d2 <= data_d1;
+
+            // A single-cycle pulse is detected if we see the pattern 0 -> 1 -> 0
+            if (!data_in && data_d1 && !data_d2) begin
+                pulse_out <= 1'b1;
+            end else begin
+                pulse_out <= 1'b0;
+            end
+        end
+    end
+
+endmodule
