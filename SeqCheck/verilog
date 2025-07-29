@@ -1,0 +1,45 @@
+// Module: SeqCheck
+// Description: Detects if three rising edges occur on `signal_in`
+// within any 5-clock-cycle sliding window.
+
+module SeqCheck (
+    input  wire clk,
+    input  wire reset,
+    input  wire signal_in,
+    output reg  flag_out
+);
+
+    reg signal_in_d1;             // Registered input for edge detection
+    reg [4:0] edge_history;       // Shift register to store rising edge occurrences
+    wire rising_edge;             // Flag for a rising edge event
+    wire [2:0] edge_count;        // Sum of edges in the window
+
+    // Detect a rising edge (0 -> 1 transition)
+    assign rising_edge = signal_in && !signal_in_d1;
+
+    // Combinational logic to count the number of '1's in the history
+    assign edge_count = edge_history[0] + edge_history[1] + edge_history[2] +
+                        edge_history[3] + edge_history[4];
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            signal_in_d1 <= 1'b0;
+            edge_history <= 5'b0;
+            flag_out     <= 1'b0;
+        end else begin
+            // Register the input for next cycle's edge detection
+            signal_in_d1 <= signal_in;
+            
+            // Shift the history register and insert the new edge event
+            edge_history <= {edge_history[3:0], rising_edge};
+
+            // The condition is met if the *new* count is 3.
+            if ((edge_count - edge_history[4] + rising_edge) == 3) begin
+                flag_out <= 1'b1;
+            end else begin
+                flag_out <= 1'b0;
+            end
+        end
+    end
+
+endmodule
