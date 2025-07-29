@@ -1,0 +1,54 @@
+`timescale 1ns / 1ps
+
+module Debouncer_tb;
+
+    // Parameters
+    localparam CLK_FREQ_HZ = 1000;
+    localparam DEBOUNCE_TIME_MS = 20;
+
+    // Inputs
+    reg clk;
+    reg reset;
+    reg noisy_in;
+
+    // Outputs
+    wire clean_out;
+
+    // Instantiate the Unit Under Test (UUT)
+    Debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .DEBOUNCE_TIME_MS(DEBOUNCE_TIME_MS)
+    ) uut (
+        .clk(clk),
+        .reset(reset),
+        .noisy_in(noisy_in),
+        .clean_out(clean_out)
+    );
+
+    // Clock generation (1 KHz -> 1ms period)
+    initial begin
+        clk = 0;
+        forever #500_000 clk = ~clk;
+    end
+
+    // Test sequence
+    initial begin
+        // Setup waveform dumping
+        $dumpfile("debouncer.vcd");
+        $dumpvars(0, uut);
+
+        reset = 1;
+        noisy_in = 0;
+        #1_000_000;
+        reset = 0;
+        #5_000_000;
+
+        // Test a bounce on press
+        noisy_in = 1; #2_000_000;
+        noisy_in = 0; #3_000_000;
+        noisy_in = 1; #30_000_000;
+        
+        $finish;
+    end
+
+endmodule
