@@ -1,0 +1,31 @@
+// Module: LightChaser
+// Description: Creates a rotating LED pattern (a single "on" bit)
+// that shifts left every few clock cycles.
+
+module LightChaser #(
+    parameter SHIFT_DELAY_CYCLES = 50_000_000 // Shift every 1 second on 50MHz clock
+) (
+    input  wire       clk,
+    input  wire       reset,
+    input  wire       enable,
+    output reg  [7:0] leds
+);
+
+    reg [$clog2(SHIFT_DELAY_CYCLES)-1:0] counter;
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            leds    <= 8'b00000001; // Initial pattern
+            counter <= 0;
+        end else if (enable) begin
+            if (counter < SHIFT_DELAY_CYCLES - 1) begin
+                counter <= counter + 1;
+            end else begin
+                counter <= 0;
+                // Rotate the '1' bit to the left
+                leds <= {leds[6:0], leds[7]};
+            end
+        end
+    end
+
+endmodule
